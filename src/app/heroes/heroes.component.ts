@@ -13,7 +13,7 @@ export class HeroesComponent implements OnInit {
 
 
 
-  selectedHero?: Hero;
+  // selectedHero?: Hero;
 
   // hero: Hero = {
   //   id: 1,
@@ -34,10 +34,10 @@ export class HeroesComponent implements OnInit {
     this.getHeroes();
   }
 
-  onSelect(hero: Hero): void {
-    this.selectedHero = hero;
-    this.messageService.add(`HeroesComponent: Selected hero id=${hero.id}`);
-  }
+  // onSelect(hero: Hero): void {
+  //   // this.selectedHero = hero;
+  //   this.messageService.add(`HeroesComponent: Selected hero id=${hero.id}`);
+  // }
 
 
   // Create a method to retrieve the heroes from the service.
