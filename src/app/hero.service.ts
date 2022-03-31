@@ -12,6 +12,52 @@ import { catchError, map, tap } from 'rxjs/operators';
 })
 export class HeroService {
 
+
+  private heroesUrl = 'api/heroes'; // URL to web api
+
+  httpOptions = {
+    headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+  };
+
+  constructor(
+    private http: HttpClient,
+    private messageService: MessageService) {
+
+
+  }
+
+  /**
+ * 
+ * @returns In general, an observable can return multiple values over time. 
+ * An observable from HttpClient always emits a single value and then completes, 
+ * never to emit again.
+ */
+  // GET heroes from the server
+  getHeroes(): Observable<Hero[]> {
+    return this.http.get<Hero[]>(this.heroesUrl)
+      //Now extend the observable result with the pipe() method and give it a catchError() operator.
+      .pipe(
+        tap(_ => this.log('fetched heroes')),
+        catchError(this.handleError<Hero[]>('getHeroes', []))
+      );
+  }
+
+
+  /** GET hero by id. Return `undefined` when id not found */
+  getHeroNo404<Data>(id: number): Observable<Hero> {
+    const url = `${this.heroesUrl}/?id=${id}`;
+    return this.http.get<Hero[]>(url)
+      .pipe(
+        map(heroes => heroes[0]), // returns a {0|1} element array
+        tap(h => {
+          const outcome = h ? 'fetched' : 'did not find';
+          this.log(`${outcome} hero id=${id}`);
+        }),
+        catchError(this.handleError<Hero>(`getHero id=${id}`))
+      );
+  }
+
+
   // Like getHeroes(), getHero() has an asynchronous signature. It returns a mock hero as an
   // Observable, using the RxJS of() function.
 
@@ -32,9 +78,7 @@ export class HeroService {
     );
   }
 
-  httpOptions = {
-    headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-  };
+
 
   updateHero(hero: Hero): Observable<any> {
     return this.http.put(this.heroesUrl, hero, this.httpOptions).pipe(
@@ -97,22 +141,27 @@ export class HeroService {
   //   return heroes;
   // }
 
-
   /**
-   * 
-   * @returns In general, an observable can return multiple values over time. 
-   * An observable from HttpClient always emits a single value and then completes, 
-   * never to emit again.
+   * Handle Http operation that failed.
+   * Let the app continue.
+   *
+   * @param operation - name of the operation that failed
+   * @param result - optional value to return as the observable result
    */
-  // GET heroes from the server
-  getHeroes(): Observable<Hero[]> {
-    return this.http.get<Hero[]>(this.heroesUrl)
-      //Now extend the observable result with the pipe() method and give it a catchError() operator.
-      .pipe(
-        tap(_ => this.log('fetched heroes')),
-        catchError(this.handleError<Hero[]>('getHeroes', []))
-      );
+  private handleError<T>(operation = 'operation', result?: T) {
+    return (error: any): Observable<T> => {
+
+      // TODO: send the error to remote logging infrastructure
+      console.error(error); // log to console instead
+
+      // TODO: better job of transforming error for user consumption
+      this.log(`${operation} failed: ${error.message}`);
+
+      // Let the app keep running by returning an empty result.
+      return of(result as T);
+    };
   }
+
 
   /** Log a HeroService message with the MessageService */
   private log(message: string) {
@@ -128,15 +177,9 @@ export class HeroService {
    * 
    * 
    */
-  private heroesUrl = 'api/heroes'; // URL to web api
 
   // This is a typical "service-in-service" scenario: you inject the MessageService into 
   // the HeroService which is injected into the HeroesComponent.
-  constructor(
-    private http: HttpClient,
-    private messageService: MessageService) {
 
-
-  }
 }
 
