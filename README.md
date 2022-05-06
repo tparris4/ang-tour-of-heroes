@@ -1,4 +1,4 @@
-https://phenomenal-hotteok-2d41fa.netlify.app/dashboard
+https://phenomenal-hotteok-2d41fa.netlify.app/
 
 
 # AngTourOfHeroes
